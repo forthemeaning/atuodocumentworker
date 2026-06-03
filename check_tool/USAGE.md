@@ -1,37 +1,65 @@
-"""
-使用说明：如何使用检查工具
+# 文件检查工具使用说明
 
-1. 快速脚本 - quick_check.py
-   - 修改脚本顶部的 FOLDER_PATH 变量为目标文件夹路径
-   - EXCEL_CONFIG_PATH 可留空（使用默认路径：目标文件夹下的config_template.xlsx）或指定特定路径
-   - 运行脚本，选择操作（1-生成配置，2-试运行，3-执行）
-   - 检查结果将保存到与原文件夹同级的 "checked" 文件夹中
+## 功能概述
 
-2. 用户脚本 - user_check.py
-   - 修改脚本中的 folder_path 变量为目标文件夹路径
-   - 运行脚本，交互式选择操作
-   - 检查结果将保存到与原文件夹同级的 "checked" 文件夹中
+批量检查文件夹中的文件是否包含指定的正则表达式内容。
 
-示例：
+## 文件说明
 
-假设要处理 D:\MyDocuments 文件夹中的文件：
+| 文件 | 说明 |
+|------|------|
+| check_main.py | 主程序 |
+| check_processor.py | 检查处理器 |
+| excel_handler.py | Excel读写模块 |
+| file_operations.py | 文件操作模块 |
+| user_check.py | 用户脚本 |
+| quick_check.py | 快速脚本 |
+| 用户脚本.bat | 启动用户脚本 |
+| 快速脚本.bat | 启动快速脚本 |
 
-对于 quick_check.py:
-# 修改这两行：
-FOLDER_PATH = r"D:\MyDocuments"
-EXCEL_CONFIG_PATH = r""  # 留空表示使用 D:\MyDocuments\config_template.xlsx
+## 使用方式
 
-或者指定具体配置路径：
-EXCEL_CONFIG_PATH = r"D:\MyDocuments\my_custom_config.xlsx"
+### 方式一：用户脚本
 
-对于 user_check.py:
-# 修改这行：
-folder_path = r"D:\MyDocuments"
+双击 `用户脚本.bat`，程序会引导操作：
 
-然后运行：
-python quick_check.py
-或
-python user_check.py
+1. 在脚本中修改 folder_path 路径
+2. 选择操作：
+   - **1**: 生成检查配置模板
+   - **2**: 执行批量检查
 
-检查后的结果将出现在 D:\checked 文件夹中（与 D:\MyDocuments 同级）。
-"""
+### 方式二：快速脚本
+
+1. 编辑 `quick_check.py`：
+```python
+FOLDER_PATH = r"c:\path\to\folder"  # 目标文件夹
+EXCEL_CONFIG_PATH = r""  # 配置文件路径（留空使用默认）
+```
+
+2. 双击 `快速脚本.bat`
+
+3. 选择操作：
+   - **1**: 生成配置模板
+   - **2**: 执行检查
+
+## 配置模板格式
+
+生成的 `config_template.xlsx` 包含以下列：
+
+| 列名 | 说明 |
+|------|------|
+| 文件名 | 要检查的文件名（支持通配符如 `*.pdf`） |
+| 正则表达式 | 匹配内容的正则表达式 |
+| 说明 | 备注说明 |
+
+## 示例
+
+**config_template.xlsx**
+| 文件名 | 正则表达式 | 说明 |
+|--------|------------|------|
+| *.pdf | 会议纪要 | 检查PDF文件是否包含会议纪要 |
+| *.docx | 20\d{2}年\d{1,2}月 | 检查年份格式 |
+
+## 输出结果
+
+检查完成后，会在 `result` 文件夹生成 `check_result.xlsx`，包含匹配结果。
