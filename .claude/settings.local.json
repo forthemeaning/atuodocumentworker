@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -c \"import sys; print\\(sys.executable\\)\")",
+      "Bash(C:\\\\Users\\\\YxYxi\\\\anaconda3\\\\envs\\\\autowork\\\\python.exe *)"
+    ]
+  }
+}

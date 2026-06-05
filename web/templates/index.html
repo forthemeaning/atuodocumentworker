@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文档处理工具</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+<!-- ========== Header ========== -->
+<header class="header">
+    <div class="header-inner">
+        <div class="logo">
+            <span class="logo-icon">⚙️</span>
+            <span class="logo-text">文档处理工具</span>
+        </div>
+        <nav class="tabs" id="tabNav">
+            <button class="tab-btn active" data-tool="rename">
+                <span class="tab-icon">📄</span>
+                <span class="tab-label">文件重命名</span>
+            </button>
+            <button class="tab-btn" data-tool="check">
+                <span class="tab-icon">🔍</span>
+                <span class="tab-label">文档检查</span>
+            </button>
+            <button class="tab-btn" data-tool="sort">
+                <span class="tab-icon">📊</span>
+                <span class="tab-label">Excel排序</span>
+            </button>
+        </nav>
+    </div>
+</header>
+
+<!-- ========== Main Content ========== -->
+<main class="main">
+
+    <!-- ====== RENAME TOOL ====== -->
+    <section class="tool-panel active" id="panel-rename">
+        <div class="panel-header">
+            <h2>📄 文件重命名</h2>
+            <p class="panel-desc">批量重命名 Word / PDF 文件，支持自定义文件名模板</p>
+        </div>
+
+        <div class="steps">
+            <!-- Step 1 -->
+            <div class="step active" data-step="1">
+                <div class="step-indicator"><span class="step-num">1</span><span class="step-title">选择文件夹</span></div>
+                <div class="step-body">
+                    <div class="path-row">
+                        <input type="text" class="input path-input" id="renamePath" placeholder="请输入文件夹路径，例如 C:\我的文件\">
+                        <button class="btn btn-secondary browse-btn" data-target="renamePath">📂 浏览</button>
+                        <button class="btn btn-primary" id="renameScanBtn">扫描文件</button>
+                    </div>
+                    <div class="step-hint">支持 .doc、.docx、.pdf 格式文件</div>
+                </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="step" data-step="2">
+                <div class="step-indicator"><span class="step-num">2</span><span class="step-title">编辑文件名</span></div>
+                <div class="step-body">
+                    <div class="global-regex-row" style="margin-bottom:12px">
+                        <label class="label" style="min-width:60px">连接符：</label>
+                        <input type="text" class="input" id="renameSeparator" value=" " style="width:80px" maxlength="5">
+                        <span style="font-size:13px;color:var(--gray-400)">子名之间的连接符号，为空则直接拼接</span>
+                    </div>
+                    <div class="table-wrap">
+                        <table class="data-table" id="renameTable">
+                            <thead>
+                                <tr>
+                                    <th style="width:36px">#</th>
+                                    <th>原文件名</th>
+                                    <th style="width:60px">扩展名</th>
+                                    <th>子名1</th>
+                                    <th>子名2</th>
+                                    <th>子名3</th>
+                                    <th style="width:60px">连接符</th>
+                                    <th>新文件名</th>
+                                </tr>
+                            </thead>
+                            <tbody id="renameTableBody">
+                                <tr><td colspan="8" class="empty-msg">请先扫描文件夹</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="step" data-step="3">
+                <div class="step-indicator"><span class="step-num">3</span><span class="step-title">执行重命名</span></div>
+                <div class="step-body">
+                    <div class="action-row">
+                        <button class="btn btn-secondary" id="renamePreviewBtn">🔍 试运行</button>
+                        <button class="btn btn-primary" id="renameExecuteBtn">🚀 执行重命名</button>
+                    </div>
+                    <div id="renameResult" class="result-area"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====== CHECK TOOL ====== -->
+    <section class="tool-panel" id="panel-check">
+        <div class="panel-header">
+            <h2>🔍 文档检查</h2>
+            <p class="panel-desc">在 Word 文档中使用正则表达式批量搜索匹配内容</p>
+        </div>
+
+        <div class="steps">
+            <!-- Step 1 -->
+            <div class="step active" data-step="1">
+                <div class="step-indicator"><span class="step-num">1</span><span class="step-title">选择文件夹</span></div>
+                <div class="step-body">
+                    <div class="path-row">
+                        <input type="text" class="input path-input" id="checkPath" placeholder="请输入包含 Word 文档的文件夹路径">
+                        <button class="btn btn-secondary browse-btn" data-target="checkPath">📂 浏览</button>
+                        <button class="btn btn-primary" id="checkScanBtn">扫描文件</button>
+                    </div>
+                    <div id="checkComStatus" class="step-hint"></div>
+                </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="step" data-step="2">
+                <div class="step-indicator"><span class="step-num">2</span><span class="step-title">填写正则表达式</span></div>
+                <div class="step-body">
+                    <div class="global-regex-row">
+                        <input type="text" class="input" id="checkGlobalRegex" placeholder="应用到所有文件的全局正则表达式（可选）">
+                        <button class="btn btn-sm btn-secondary" id="checkApplyGlobal">应用到全部</button>
+                    </div>
+                    <div class="table-wrap" style="margin-top:12px">
+                        <table class="data-table" id="checkTable">
+                            <thead>
+                                <tr>
+                                    <th style="width:40px">#</th>
+                                    <th>文件名</th>
+                                    <th>正则表达式</th>
+                                </tr>
+                            </thead>
+                            <tbody id="checkTableBody">
+                                <tr><td colspan="3" class="empty-msg">请先扫描文件夹</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="regex-help">
+                        <details>
+                            <summary>📖 正则表达式使用帮助</summary>
+                            <ul>
+                                <li><code>\d+</code> — 匹配数字</li>
+                                <li><code>[合同|协议]</code> — 匹配"合同"或"协议"</li>
+                                <li><code>合同编号[\d-]+</code> — 匹配"合同编号2024-001"</li>
+                                <li><code>金额[：:]\s*[\d,]+</code> — 匹配金额</li>
+                            </ul>
+                        </details>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="step" data-step="3">
+                <div class="step-indicator"><span class="step-num">3</span><span class="step-title">查看结果</span></div>
+                <div class="step-body">
+                    <div class="action-row">
+                        <button class="btn btn-primary" id="checkExecuteBtn">🔍 开始检查</button>
+                        <button class="btn btn-secondary" id="checkClearBtn">🗑️ 清空结果</button>
+                    </div>
+                    <div id="checkStats" class="stats-bar"></div>
+                    <div id="checkResult" class="result-area"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====== SORT TOOL ====== -->
+    <section class="tool-panel" id="panel-sort">
+        <div class="panel-header">
+            <h2>📊 Excel 排序</h2>
+            <p class="panel-desc">根据参照文件的列顺序，对目标 Excel 文件的行进行排序</p>
+        </div>
+
+        <div class="steps">
+            <!-- Step 1 -->
+            <div class="step active" data-step="1">
+                <div class="step-indicator"><span class="step-num">1</span><span class="step-title">选择参照文件</span></div>
+                <div class="step-body">
+                    <div class="path-row">
+                        <input type="text" class="input path-input" id="sortRefPath" placeholder="参照 Excel 文件路径（定义排序顺序）">
+                        <button class="btn btn-secondary browse-btn" data-target="sortRefPath">📂 浏览</button>
+                        <button class="btn btn-sm btn-primary" id="sortRefLoadBtn">读取列</button>
+                    </div>
+                    <div id="sortRefInfo" class="file-info"></div>
+                    <div class="path-row" style="margin-top:12px" id="sortRefColumnRow" hidden>
+                        <label class="label">参照列：</label>
+                        <select class="input select" id="sortRefColumn"></select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="step" data-step="2">
+                <div class="step-indicator"><span class="step-num">2</span><span class="step-title">选择目标文件</span></div>
+                <div class="step-body">
+                    <div class="path-row">
+                        <input type="text" class="input path-input" id="sortTargetPath" placeholder="待排序的目标 Excel 文件路径">
+                        <button class="btn btn-secondary browse-btn" data-target="sortTargetPath">📂 浏览</button>
+                        <button class="btn btn-sm btn-primary" id="sortTargetLoadBtn">读取列</button>
+                    </div>
+                    <div id="sortTargetInfo" class="file-info"></div>
+                    <div class="path-row" style="margin-top:12px" id="sortTargetColumnRow" hidden>
+                        <label class="label">匹配列：</label>
+                        <select class="input select" id="sortMatchColumn"></select>
+                    </div>
+                    <div class="options-row" style="margin-top:12px">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="sortFuzzy">
+                            <span>模糊匹配（包含式匹配）</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="sortKeepUnmatched" checked>
+                            <span>保留未匹配的行</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="step" data-step="3">
+                <div class="step-indicator"><span class="step-num">3</span><span class="step-title">执行排序</span></div>
+                <div class="step-body">
+                    <div class="action-row">
+                        <button class="btn btn-primary" id="sortExecuteBtn">📊 执行排序</button>
+                    </div>
+                    <div id="sortStats" class="stats-bar"></div>
+                    <div id="sortResult" class="result-area"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<!-- ========== Directory Browser Modal ========== -->
+<div class="modal-overlay" id="explorerModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>📂 选择文件夹</h3>
+            <button class="modal-close" id="explorerClose">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="explorer-current" id="explorerCurrent">请选择目录</div>
+            <div class="explorer-path-row">
+                <input type="text" class="input" id="explorerPathInput" placeholder="直接输入路径">
+                <button class="btn btn-sm btn-primary" id="explorerGoBtn">前往</button>
+            </div>
+            <div class="explorer-list" id="explorerList">
+                <div class="loading">加载中...</div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" id="explorerCancel">取消</button>
+            <button class="btn btn-primary" id="explorerSelect">选择当前文件夹</button>
+        </div>
+    </div>
+</div>
+
+<!-- ========== Toast Container ========== -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ========== Loading Overlay ========== -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-spinner"></div>
+    <div class="loading-text" id="loadingText">处理中...</div>
+</div>
+
+<script src="/static/js/app.js"></script>
+</body>
+</html>

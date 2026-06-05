@@ -21,6 +21,7 @@ def check_win32com_availability():
     if WIN32COM_AVAILABLE is None:
         try:
             import win32com.client
+            import pythoncom
             WIN32COM_AVAILABLE = True
         except ImportError:
             WIN32COM_AVAILABLE = False
@@ -34,16 +35,20 @@ def get_match_pages_com(file_path: str, pattern: str) -> List[Dict[str, Any]]:
         return []
         
     import win32com.client  # 延迟导入
-    
+    import pythoncom
+
+    pythoncom.CoInitialize()  # 初始化 COM 线程（Flask 多线程环境下必需）
+
     word = None
     doc = None
     results = []
-    
+
     # 检查文件是否存在
     if not file_exists(file_path):
         print(f"文件不存在: {file_path}")
+        pythoncom.CoUninitialize()
         return []
-    
+
     try:
         # 连接 WPS（关键：使用 KWPS.Application 而不是 Word.Application）
         word = win32com.client.Dispatch("KWPS.Application")
@@ -111,10 +116,15 @@ def get_match_pages_com(file_path: str, pattern: str) -> List[Dict[str, Any]]:
                 doc.Close(False)
         except:
             pass
-            
+
         try:
             if word:
                 word.Quit()
+        except:
+            pass
+
+        try:
+            pythoncom.CoUninitialize()
         except:
             pass
     

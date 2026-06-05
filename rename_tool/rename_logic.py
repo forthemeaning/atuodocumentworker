@@ -141,7 +141,7 @@ class BatchRenamer:
             return None
         
         if output_folder is None:
-            output_folder = os.path.join(folder_path, "renamed")
+            output_folder = os.path.join(os.path.dirname(__file__), "result")
         
         if not self.dry_run:
             ensure_folder(output_folder)
